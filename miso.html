@@ -1,0 +1,35 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <title>Your Application Title</title>
+</head>
+<body>
+  <div id="content">
+    <!-- Your content here -->
+  </div>
+
+  <!-- Dataset source files -->
+  <script src="miso.ds.deps.ie.min.0.3.0"></script>
+
+  <!-- Your application code -->
+  <script src="js/main.js"></script>
+  <script type="text/javascript">
+
+var ds = new Miso.Dataset({
+  data : data
+});
+
+ds.fetch({ 
+  success : function() {
+    log("Dataset Ready. Columns: " + this.columnNames());
+    log("There are " + this.length + " rows");
+    log("Available Colors: " + this.column("color").data);
+  }
+});
+
+
+
+  </script>
+
+</body>
+</html>
