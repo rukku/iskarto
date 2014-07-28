@@ -3,6 +3,9 @@
     
     <head>
         <link rel="stylesheet" type="text/css" href="leaflet/leaflet.css" />
+		
+		<script src="http://code.jquery.com/jquery-2.1.0.min.js"></script>
+		<link rel="points" type="application/json" href="./upbuildings.geojson">
         <!--[if lte IE 8]>
             <link rel="stylesheet" type="text/css" href=" leaflet/leaflet.ie.css" />
         <![endif]-->
@@ -60,9 +63,9 @@
                 return this._div;
             };
             infobox.refresh = function (properties) {
-                this._div.innerHTML = '<h4>Affected Population</h4>';
+                this._div.innerHTML = '<h4>Building</h4>';
                 if (typeof (properties) != 'undefined') {
-                    this._div.innerHTML += '<b>' + properties.NAME_3 + '</b><br/>' + 'Population: ' + properties.population + '<br/>' + 'Density: ' + properties.density + '<br/>' + '<b>Click to zoom.</b>';
+                    this._div.innerHTML += '<b>' + properties.name + '</b><br/>' + 'Type: ' + properties.type + '<br/>' + 'Density: ' + properties.density + '<br/>' + '<b>Click to zoom.</b>';
                 } else {
                     this._div.innerHTML += '<b>Hover a country.</b>';
                 }
@@ -78,12 +81,13 @@
             ];
             var populationthresholds = [
                 [0, 'rgb(239, 243, 255)'],
-                [40000, 'rgb(189, 215, 231)'],
+                ['school', 'rgb(189, 215, 231)'],
                 [1000000, 'rgb(107, 174, 214)'],
                 [10000000, 'rgb( 49, 130, 189)'],
                 [50000000, 'rgb(139, 0, 0)']
             ];
 
+			/*
             var colorByThresholds = function (thresholds, value) {
                 for (var i = 0; i < thresholds.length - 1; i++) {
                     if (value < thresholds[i + 1][0])
@@ -91,7 +95,20 @@
                 }
                 return thresholds[thresholds.length - 1][1];
             };
-
+			*/
+			
+			var colorByThresholds = function getColor(d) {
+				return d == 'office' ? 'blue' :
+					d == null  ? '#BD0026' :
+					d == 'school'  ? 'yellow' :
+					d == 'college'  ? '#FC4E2A' :
+					d == 'library'   ? '#FD8D3C' :
+					d == 20   ? '#FEB24C' :
+					d == 10   ? '#FED976' :
+                      '#FFEDA0';
+			}
+			
+		
             var legendbox = L.control({
                 position: 'bottomleft'
             });
@@ -112,7 +129,10 @@
             };
             legendbox.addTo(map);
 
-            var densitylayer = L.geoJson(cebu, {
+
+			$.getJSON($('link[rel="points"]').attr("href"), function(data) {
+
+            var densitylayer = L.geoJson(data, {
                 style: function (feature) {
                     var density = feature.properties.density;
                     return {
@@ -141,11 +161,11 @@
                 }
             });
 
-            var populationlayer = L.geoJson(cebu, {
+            var populationlayer = L.geoJson(data, {
                 style: function (feature) {
-                    var population = feature.properties.population;
+                    var population = feature.properties.type;
                     return {
-                        fillColor: colorByThresholds(populationthresholds, population),
+                        fillColor: colorByThresholds(population),
                         fillOpacity: 1,
                         weight: 1,
                         color: 'black'
@@ -169,14 +189,22 @@
                     });
                 }
             }).addTo(map);
+			
+
             L.control.layers({
-                'Density': densitylayer,
-                'Population': populationlayer
+             /*   'Density': densitylayer, */
+                'Population': populationlayer,
             }).addTo(map);
 
             map.fitBounds(populationlayer.getBounds());
 
             map.attributionControl.addAttribution('&copy; <a href="http://epp.eurostat.ec.europa.eu/portal/page/portal/eurostat/home/">Eurostat</a>');
+			
+			
+			});
+			
+			
+
         </script>
     </body>
 
